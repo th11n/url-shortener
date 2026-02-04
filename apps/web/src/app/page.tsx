@@ -7,13 +7,24 @@ import {
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
+	DialogHeader,
 	DialogTitle,
 } from "@url-shortener/ui/components/dialog";
 import { Input } from "@url-shortener/ui/components/input";
-import { ArrowRight, CheckCircle2, Globe, Link2, Shield } from "lucide-react";
-import * as React from "react";
-
+import confetti from "canvas-confetti";
+import {
+	ArrowRight,
+	Check,
+	CheckCircle2,
+	Copy,
+	Globe,
+	Link2,
+	Shield,
+	Sparkles,
+} from "lucide-react";
+import { useCallback, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { orpc } from "@/lib/orpc-client";
 
 type CreateUrlPayload = {
 	originalUrl: string;
@@ -52,47 +63,60 @@ function formatExpiresAt(expiresAt?: string) {
 export default function Home() {
 	const { data: session, isPending: sessionPending } = authClient.useSession();
 
-	const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
-	const [isResultModalOpen, setIsResultModalOpen] = React.useState(false);
+	const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+	const [isResultModalOpen, setIsResultModalOpen] = useState(false);
+	const [copied, setCopied] = useState(false);
 
-	const [pendingPayload, setPendingPayload] =
-		React.useState<CreateUrlPayload | null>(null);
-	const [isCreating, setIsCreating] = React.useState(false);
+	const [pendingPayload, setPendingPayload] = useState<CreateUrlPayload | null>(
+		null,
+	);
+	const [isCreating, setIsCreating] = useState(false);
 
-	const [result, setResult] = React.useState<{
+	const [result, setResult] = useState<{
 		shortUrl: string;
 		expiresAtFormatted: string;
 		expiresAtRaw?: string;
 	} | null>(null);
 
-	const createUrl = React.useCallback(async (payload: CreateUrlPayload) => {
+	const startConfetti = () => {
+		const duration = 5 * 1000;
+		const animationEnd = Date.now() + duration;
+		const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+		const randomInRange = (min: number, max: number) =>
+			Math.random() * (max - min) + min;
+		const interval = window.setInterval(() => {
+			const timeLeft = animationEnd - Date.now();
+			if (timeLeft <= 0) {
+				return clearInterval(interval);
+			}
+			const particleCount = 50 * (timeLeft / duration);
+			confetti({
+				...defaults,
+				particleCount,
+				origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+			});
+			confetti({
+				...defaults,
+				particleCount,
+				origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+			});
+		}, 250);
+	};
+
+	const createUrl = useCallback(async (payload: CreateUrlPayload) => {
 		setIsCreating(true);
 		try {
-			const res = await fetch(
-				`${process.env.NEXT_PUBLIC_SERVER_URL}/rpc/v1/createUrl`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					credentials: "include",
-					body: JSON.stringify({
-						json: payload,
-						meta: [],
-					}),
-				},
-			);
+			const res = await orpc.createUrl(payload);
 
-			const data = (await res.json()) as CreateUrlResponse;
-			if (!res.ok) throw new Error(data?.json?.message ?? "Request failed");
-
-			const shortUrl = data?.json?.url?.shortUrl;
-			const expiresAtRaw = data?.json?.url?.expiresAt;
-			const expiresAtFormatted = formatExpiresAt(expiresAtRaw);
-
+			const shortUrl = res.url.shortUrl;
 			if (!shortUrl) throw new Error("Short URL not found");
+
+			const expiresAtRaw = res.url.expiresAt?.toString();
+			if (!expiresAtRaw) throw new Error("Expires at not found");
+			const expiresAtFormatted = formatExpiresAt(expiresAtRaw);
 
 			setResult({ shortUrl, expiresAtFormatted, expiresAtRaw });
 			setIsResultModalOpen(true);
-			return data;
 		} finally {
 			setIsCreating(false);
 		}
@@ -122,15 +146,19 @@ export default function Home() {
 		setIsAuthModalOpen(false);
 		await createUrl(pendingPayload);
 		setPendingPayload(null);
+		startConfetti();
 	};
 
 	const onSignIn = async () => {
 		window.location.href = "/login";
 	};
 
-	const onCopy = async () => {
-		if (!result?.shortUrl) return;
-		await navigator.clipboard.writeText(result.shortUrl);
+	const onCopy = () => {
+		navigator.clipboard.writeText(
+			process.env.NEXT_PUBLIC_BASE_URL + "/" + result?.shortUrl,
+		);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
 	};
 
 	return (
@@ -149,7 +177,7 @@ export default function Home() {
 									<span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
 									<span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
 								</span>
-								v2.0 is now live
+								v1.0 is now live
 							</Badge>
 						</div>
 
@@ -316,116 +344,79 @@ export default function Home() {
 
 			{/* Result modal */}
 			<Dialog open={isResultModalOpen} onOpenChange={setIsResultModalOpen}>
-				<DialogContent className="overflow-hidden p-0 sm:max-w-[620px]">
-					<div className="relative border-border border-b bg-card/60 p-6 pb-5 backdrop-blur">
-						<div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#80808014,transparent_55%)]" />
-						<div className="relative">
-							<div className="flex items-start justify-between gap-4">
-								<div className="space-y-2">
-									<div className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 font-medium text-muted-foreground text-xs tracking-wide">
-										<CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-										Link created
-									</div>
+				<DialogContent className="overflow-hidden border-border bg-card/95 p-0 shadow-2xl backdrop-blur-xl sm:max-w-[500px]">
+					<div className="pointer-events-none absolute inset-0 h-32 bg-[linear-gradient(to_bottom,rgba(var(--primary),0.05),transparent)]" />
 
-									<DialogTitle className="text-xl sm:text-2xl">
-										Your short link is ready
-									</DialogTitle>
-
-									<DialogDescription className="text-sm sm:text-base">
-										{result?.expiresAtFormatted ? (
-											<>
-												This link expires on{" "}
-												<span className="font-semibold text-foreground">
-													{result.expiresAtFormatted}
-												</span>
-												.
-											</>
-										) : (
-											<>Short link created successfully.</>
-										)}
-										{!session?.user && (
-											<span className="mt-2 block">
-												You’re creating as a guest - links expire in ~30 days.
-												Sign in to extend expiry and view analytics.
-											</span>
-										)}
-									</DialogDescription>
-								</div>
+					<div className="relative p-8">
+						<DialogHeader className="items-center space-y-4 text-center">
+							<div className="zoom-in-50 flex h-14 w-14 animate-in items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20 duration-500">
+								<Sparkles className="h-7 w-7 text-primary" />
 							</div>
-						</div>
-					</div>
+							<div className="space-y-1">
+								<DialogTitle className="font-bold text-2xl tracking-tighter sm:text-3xl">
+									Magic link ready!
+								</DialogTitle>
+								<DialogDescription className="text-center font-medium text-muted-foreground">
+									{result?.expiresAtFormatted ? (
+										<>
+											Expires on{" "}
+											<span className="text-foreground">
+												{result.expiresAtFormatted}
+											</span>
+										</>
+									) : (
+										"Your link is shortened and ready to share."
+									)}
+								</DialogDescription>
+							</div>
+						</DialogHeader>
 
-					<div className="p-6 pt-5">
-						<div className="rounded-2xl border border-border bg-card/40 p-4">
-							<div className="flex items-center justify-between gap-3">
-								<div className="min-w-0">
-									<div className="text-muted-foreground text-xs uppercase tracking-widest">
-										Short URL
-									</div>
-									<div className="mt-2 flex items-center gap-2">
-										<div className="min-w-0 flex-1">
-											<Input
-												readOnly
-												value={result?.shortUrl ?? ""}
-												className="h-11 bg-background/40"
-											/>
+						<div className="mt-8 space-y-6">
+							{/* Główny Box z linkiem */}
+							<div className="group relative rounded-2xl border border-border bg-background/50 p-2 transition-all focus-within:ring-2 focus-within:ring-primary/20 hover:border-primary/30">
+								<div className="flex items-center gap-2">
+									<div className="min-w-0 flex-1 px-3">
+										<span className="font-bold text-muted-foreground/60 text-xs uppercase tracking-widest">
+											Short URL
+										</span>
+										<div className="mt-0.5 truncate font-semibold text-foreground text-lg tracking-tight">
+											{process.env.NEXT_PUBLIC_BASE_URL}/{result?.shortUrl}
 										</div>
 									</div>
+
+									<Button
+										onClick={onCopy}
+										size="icon"
+										className={`h-12 w-12 rounded-xl transition-all duration-300 ${copied ? "bg-green-600 hover:bg-green-600" : "bg-primary"}`}
+									>
+										{copied ? (
+											<Check className="h-5 w-5" />
+										) : (
+											<Copy className="h-5 w-5" />
+										)}
+									</Button>
 								</div>
-
-								<Button
-									onClick={onCopy}
-									className="h-11 shrink-0"
-									disabled={!result?.shortUrl}
-								>
-									Copy
-									<CheckCircle2 className="ml-2 h-4 w-4" />
-								</Button>
 							</div>
 
-							<div className="mt-3 flex flex-wrap gap-2">
-								<span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/40 px-3 py-1 text-muted-foreground text-xs">
-									<Globe className="h-3.5 w-3.5 text-primary" />
-									Fast redirects
-								</span>
-								<span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/40 px-3 py-1 text-muted-foreground text-xs">
-									<Shield className="h-3.5 w-3.5 text-primary" />
-									Safe by design
-								</span>
-							</div>
+							{/* Promo info dla Gościa */}
+							{!session?.user && (
+								<div className="rounded-xl border border-primary/10 bg-primary/5 p-4 text-center">
+									<p className="text-muted-foreground text-xs leading-relaxed">
+										<span className="font-semibold text-primary">Pro tip:</span>{" "}
+										Sign up to track clicks, create custom links and more.
+									</p>
+								</div>
+							)}
 						</div>
 
-						<DialogFooter className="mt-5 flex-col gap-2 sm:flex-row sm:gap-2">
-							{!session?.user ? (
-								<>
-									<Button
-										variant="outline"
-										onClick={() => setIsResultModalOpen(false)}
-										className="h-11 w-full sm:w-auto"
-									>
-										Done
-									</Button>
-									<Button onClick={onSignIn} className="h-11 w-full sm:w-auto">
-										Sign in to extend &amp; track
-										<ArrowRight className="ml-2 h-4 w-4" />
-									</Button>
-								</>
-							) : (
-								<Button
-									onClick={() => setIsResultModalOpen(false)}
-									className="h-11 w-full sm:w-auto"
-								>
-									Done
-								</Button>
-							)}
+						<DialogFooter className="mt-8">
+							<Button
+								onClick={() => setIsResultModalOpen(false)}
+								className="h-12 w-full border-border font-semibold text-base transition-all active:scale-95"
+							>
+								Close
+							</Button>
 						</DialogFooter>
-
-						{!session?.user && (
-							<p className="mt-3 text-muted-foreground text-xs">
-								Tip: Sign in now to claim this link and keep it alive longer
-								than 30 days.
-							</p>
-						)}
 					</div>
 				</DialogContent>
 			</Dialog>
