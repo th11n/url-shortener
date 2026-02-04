@@ -1,9 +1,301 @@
 {
-	"id": "3ac7c637-8525-4dc7-8fd9-009868eedbb2",
+	"id": "9664433e-e308-4e94-94f1-814197f26d3e",
 	"prevId": "00000000-0000-0000-0000-000000000000",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
+		"public.link_clicks": {
+			"name": "link_clicks",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "bigserial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"link_id": {
+					"name": "link_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"ts": {
+					"name": "ts",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"ip": {
+					"name": "ip",
+					"type": "inet",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"country": {
+					"name": "country",
+					"type": "char(2)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"region": {
+					"name": "region",
+					"type": "varchar(128)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"city": {
+					"name": "city",
+					"type": "varchar(128)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"referrer": {
+					"name": "referrer",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"user_agent": {
+					"name": "user_agent",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"device": {
+					"name": "device",
+					"type": "device_type",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'unknown'"
+				},
+				"browser": {
+					"name": "browser",
+					"type": "varchar(64)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"os": {
+					"name": "os",
+					"type": "varchar(64)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"is_bot": {
+					"name": "is_bot",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"utm_source": {
+					"name": "utm_source",
+					"type": "varchar(128)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"utm_medium": {
+					"name": "utm_medium",
+					"type": "varchar(128)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"utm_campaign": {
+					"name": "utm_campaign",
+					"type": "varchar(128)",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"link_clicks_link_ts_idx": {
+					"name": "link_clicks_link_ts_idx",
+					"columns": [
+						{
+							"expression": "link_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "ts",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"link_clicks_link_ip_idx": {
+					"name": "link_clicks_link_ip_idx",
+					"columns": [
+						{
+							"expression": "link_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "ip",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"link_clicks_link_country_idx": {
+					"name": "link_clicks_link_country_idx",
+					"columns": [
+						{
+							"expression": "link_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "country",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"link_clicks_link_bot_idx": {
+					"name": "link_clicks_link_bot_idx",
+					"columns": [
+						{
+							"expression": "link_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "is_bot",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"link_clicks_link_id_urls_id_fk": {
+					"name": "link_clicks_link_id_urls_id_fk",
+					"tableFrom": "link_clicks",
+					"tableTo": "urls",
+					"columnsFrom": ["link_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.link_daily_stats": {
+			"name": "link_daily_stats",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "bigserial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"link_id": {
+					"name": "link_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"day": {
+					"name": "day",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"total_clicks": {
+					"name": "total_clicks",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"unique_visitors": {
+					"name": "unique_visitors",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"bot_clicks": {
+					"name": "bot_clicks",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				}
+			},
+			"indexes": {
+				"link_daily_unique_idx": {
+					"name": "link_daily_unique_idx",
+					"columns": [
+						{
+							"expression": "link_id",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "day",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {
+				"link_daily_stats_link_id_urls_id_fk": {
+					"name": "link_daily_stats_link_id_urls_id_fk",
+					"tableFrom": "link_daily_stats",
+					"tableTo": "urls",
+					"columnsFrom": ["link_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
 		"public.account": {
 			"name": "account",
 			"schema": "",
@@ -424,7 +716,13 @@
 			"isRLSEnabled": false
 		}
 	},
-	"enums": {},
+	"enums": {
+		"public.device_type": {
+			"name": "device_type",
+			"schema": "public",
+			"values": ["desktop", "mobile", "tablet", "bot", "unknown"]
+		}
+	},
 	"schemas": {},
 	"sequences": {},
 	"roles": {},
