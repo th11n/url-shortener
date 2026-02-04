@@ -1,0 +1,24 @@
+{
+	"name": "@url-shortener/auth",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {},
+	"dependencies": {
+		"@url-shortener/db": "workspace:*",
+		"@url-shortener/env": "workspace:*",
+		"better-auth": "catalog:",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@url-shortener/config": "workspace:*",
+		"typescript": "catalog:"
+	}
+}

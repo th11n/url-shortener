@@ -1,0 +1,29 @@
+{
+	"name": "@url-shortener/api",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {},
+	"dependencies": {
+		"@orpc/client": "catalog:",
+		"@orpc/openapi": "catalog:",
+		"@orpc/server": "catalog:",
+		"@orpc/zod": "catalog:",
+		"@url-shortener/auth": "workspace:*",
+		"@url-shortener/db": "workspace:*",
+		"@url-shortener/env": "workspace:*",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@url-shortener/config": "workspace:*",
+		"hono": "catalog:",
+		"typescript": "catalog:"
+	}
+}
