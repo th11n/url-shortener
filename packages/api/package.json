@@ -19,6 +19,8 @@
 		"@url-shortener/db": "workspace:*",
 		"@url-shortener/env": "workspace:*",
 		"dotenv": "catalog:",
+		"drizzle-orm": "^0.45.1",
+		"ioredis": "^5.9.2",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

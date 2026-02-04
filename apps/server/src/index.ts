@@ -39,7 +39,7 @@ app.use(
 	}),
 );
 
-app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+app.on(["POST", "GET"], "/rpc/v1/auth/*", (c) => auth.handler(c.req.raw));
 
 app.use("/*", async (c, next) => {
 	const context = await createContext({ context: c });

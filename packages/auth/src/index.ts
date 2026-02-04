@@ -7,9 +7,9 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
-
 		schema: schema,
 	}),
+	basePath: "/rpc/v1/auth",
 	trustedOrigins: [env.CORS_ORIGIN],
 	emailAndPassword: {
 		enabled: true,
