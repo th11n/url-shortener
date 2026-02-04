@@ -1,78 +1,71 @@
-# url-shortener
+# ⚡ TrimLink - Modern URL Shortener
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Hono, ORPC, and more.
+A powerful, scalable, and ultra-fast URL shortener built with a monorepo architecture. This project focuses on high performance, security, and real-time analytics.
 
-## Features
+## 🚀 Key Features
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Hono** - Lightweight, performant server framework
-- **oRPC** - End-to-end type-safe APIs with OpenAPI integration
-- **Bun** - Runtime environment
-- **Drizzle** - TypeScript-first ORM
-- **PostgreSQL** - Database engine
-- **Authentication** - Better-Auth
-- **Biome** - Linting and formatting
-- **Husky** - Git hooks for code quality
-- **Turborepo** - Optimized monorepo build system
+- **URL Shortening**: Create short, shareable links in an instant.
+- **Custom Slugs**: Support for user-defined link identifiers.
+- **Real-time Analytics**: Track clicks with detailed info on devices, browsers, and geographic location.
+- **Queue System (RabbitMQ)**: Background processing of analytics ensures lightning-fast redirects.
+- **Caching (Redis)**: Redirect lookups are cached to reduce database load to near zero.
+- **Full Auth**: Secure sign-in and registration powered by `better-auth`.
+- **End-to-End Type Safety**: Shared TypeScript types across the entire stack (from DB to Frontend) via `oRPC`.
 
-## Getting Started
+## 🏗️ System Architecture
 
-First, install the dependencies:
+The system is split into micro-services and shared packages using a Monorepo structure:
 
+- **`apps/web`**: Next.js 16 frontend with a modern UI (Shadcn/UI, GSAP Animations, Confetti).
+- **`apps/server`**: Main API Gateway built with Hono, handling business logic and oRPC endpoints.
+- **`apps/analytics`**: Isolated analytics service (Hono) that collects data and dispatches events to RabbitMQ.
+- **`packages/db`**: Database layer using Drizzle ORM and PostgreSQL.
+- **`packages/api`**: Shared oRPC router definitions and business logic.
+- **`packages/auth`**: Shared Better-Auth configuration used across all services.
+
+## 🛠️ Tech Stack
+
+- **Runtime**: Bun
+- **Frontend**: Next.js 16, TailwindCSS, Framer Motion, TanStack Query/Form
+- **Backend**: Hono, oRPC
+- **Database**: PostgreSQL, Drizzle ORM
+- **Infrastructure**: Docker, RabbitMQ, Redis
+- **Tooling**: Turborepo, Biome, Husky
+
+## 🏁 Quick Start
+
+### 1. Clone and Install
 ```bash
+git clone <repository-url>
+cd url-shortener
 bun install
 ```
 
-## Database Setup
-
-This project uses PostgreSQL with Drizzle ORM.
-
-1. Make sure you have a PostgreSQL database set up.
-2. Update your `apps/server/.env` file with your PostgreSQL connection details.
-
-3. Apply the schema to your database:
-
+### 2. Infrastructure (Docker)
+Spin up the required services (Postgres, Redis, RabbitMQ):
 ```bash
-bun run db:push
+cd packages/db
+docker-compose up -d
 ```
 
-Then, run the development server:
+### 3. Environment Variables
+Copy `.env.example` (if available) or create `.env` files in the respective `apps/*` directories with your database, Redis, and RabbitMQ credentials.
 
+### 4. Database Migrations
 ```bash
-bun run dev
+bun db:push
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
-The API is running at [http://localhost:3000](http://localhost:3000).
-
-## Git Hooks and Formatting
-
-- Initialize hooks: `bun run prepare`
-- Format and lint fix: `bun run check`
-
-## Project Structure
-
-```
-url-shortener/
-├── apps/
-│   ├── web/         # Frontend application (Next.js)
-│   └── server/      # Backend API (Hono, ORPC)
-├── packages/
-│   ├── api/         # API layer / business logic
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
+### 5. Run the Project
+```bash
+bun dev
 ```
 
-## Available Scripts
+## 📈 Monitoring & Tools
+- **Drizzle Studio**: `bun db:studio` (database browser)
+- **RabbitMQ Management**: `http://localhost:15672` (User: `admin`, Pass: `admin`)
+- **API Docs**: `http://localhost:3000/api-reference/v1` (OpenAPI/Swagger)
 
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run dev:web`: Start only the web application
-- `bun run dev:server`: Start only the server
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run db:push`: Push schema changes to database
-- `bun run db:studio`: Open database studio UI
-- `bun run check`: Run Biome formatting and linting
+---
+
+Built with a passion for high-performance code. ✨
