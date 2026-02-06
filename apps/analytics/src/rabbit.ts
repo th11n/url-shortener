@@ -1,5 +1,5 @@
 import amqp from "amqplib";
-import type { Channel, Connection } from "./types/amqplib";
+import type { Channel, ChannelModel, Connection } from "./types/amqplib";
 
 let channelPromise: Promise<Channel> | null = null;
 
@@ -8,7 +8,9 @@ async function createChannel(): Promise<Channel> {
 	if (!url) throw new Error("Missing RABBITMQ_URL");
 
 	const conn = (await amqp.connect(url)) as unknown as Connection;
-	const ch = (await (conn as any).createChannel()) as Channel;
+	const ch = (await (
+		conn as unknown as ChannelModel
+	).createChannel()) as Channel;
 
 	conn.on("close", () => {
 		channelPromise = null;
@@ -32,12 +34,14 @@ export async function publishJson(opts: {
 }) {
 	const ch = await getRabbitChannel();
 
-	await ch.assertExchange(opts.exchange, "direct", { durable: true });
+	await ch.assertExchange(opts.exchange, "topic", { durable: true });
 
 	const body = Buffer.from(JSON.stringify(opts.payload));
 
-	return ch.publish(opts.exchange, opts.routingKey, body, {
+	const ok = ch.publish(opts.exchange, opts.routingKey, body, {
 		contentType: "application/json",
 		persistent: true,
 	});
+
+	return ok;
 }
