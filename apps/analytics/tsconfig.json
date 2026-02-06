@@ -8,7 +8,8 @@
 			"@/*": ["./src/*"]
 		},
 		"jsx": "react-jsx",
-		"jsxImportSource": "hono/jsx"
+		"jsxImportSource": "hono/jsx",
+		"rootDir": "src"
 	},
-	"include": ["src"]
+	"include": ["src/**/*"]
 }
