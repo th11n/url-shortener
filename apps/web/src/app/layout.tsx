@@ -1,42 +1,29 @@
 import type { Metadata } from "next";
-
-import { Geist, Geist_Mono } from "next/font/google";
-
+import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "@url-shortener/ui/globals.css";
-
 import Header from "@/components/header";
 import Providers from "@/components/providers";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const outfit = Outfit({
+	variable: "--font-outfit",
 	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
+	weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-	title: "url-shortener",
-	description: "url-shortener",
+	title: "Trim.it — Link infrastructure for modern teams",
+	description: "Shorten, track and analyze your links with precision.",
 };
 
-export default function RootLayout({
-	children,
-}: Readonly<{
-	children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-			>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} antialiased bg-background text-foreground`}>
 				<Providers>
-					<div className="grid h-svh grid-rows-[auto_1fr]">
-						<Header />
-						{children}
-					</div>
+					<Header />
+					{children}
 				</Providers>
 			</body>
 		</html>
