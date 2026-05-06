@@ -39,9 +39,11 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
+		"@lottiefiles/react-lottie-player": "^3.6.0",
 		"@url-shortener/env": "workspace:*",
 		"@url-shortener/ui": "workspace:*",
 		"dotenv": "catalog:",
+		"three": "^0.184.0",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
