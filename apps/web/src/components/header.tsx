@@ -1,33 +1,53 @@
 "use client";
 
-import { Link2 } from "lucide-react";
 import Link from "next/link";
-import UserMenu from "./user-menu";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import { authClient } from "@/lib/auth-client";
 
+// Floating glass pill — renders above all page content
 export default function Header() {
-	return (
-		<header className="sticky top-0 z-50 w-full border-border border-b bg-background/80 backdrop-blur-md">
-			<div className="container mx-auto flex h-16 items-center justify-between px-4">
-				{/* Logo Section */}
-				<div className="flex items-center gap-8">
-					<Link
-						href="/"
-						className="flex items-center gap-2 transition-opacity hover:opacity-90"
-					>
-						<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-							<Link2 className="h-5 w-5 text-primary-foreground" />
-						</div>
-						<span className="font-bold text-xl uppercase tracking-tighter">
-							Trim<span className="text-muted-foreground">.it</span>
-						</span>
-					</Link>
-				</div>
+	const { data: session } = authClient.useSession();
+	const pathname = usePathname();
+	if (pathname !== "/") return null;
 
-				{/* Action Section */}
-				<div className="flex items-center gap-4">
-					<UserMenu />
+	return (
+		<div className="pointer-events-none fixed top-5 left-1/2 z-50 w-full max-w-3xl -translate-x-1/2 px-4">
+			<motion.header
+				initial={{ y: -10, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+				className="pointer-events-auto relative flex items-center justify-between overflow-hidden rounded-full border border-white/12 bg-black/40 px-4 py-2 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.9)] backdrop-blur-xl"
+			>
+				<div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/[0.03]" />
+
+				{/* Logo */}
+				<Link href="/" className="relative flex shrink-0 items-center gap-2 rounded-full px-2.5 py-1.5 transition-colors hover:bg-white/[0.03]">
+					<span className="font-outfit text-[15px] font-medium tracking-tight text-white">trim.it</span>
+				</Link>
+
+				<div className="relative shrink-0 pl-1">
+					{session?.user ? (
+						<Link
+							href="/dashboard"
+							className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+								pathname.startsWith("/dashboard")
+									? "bg-white/[0.08] text-white"
+									: "text-white/60 hover:bg-white/[0.03] hover:text-white/80"
+							}`}
+						>
+							Dashboard
+						</Link>
+					) : (
+						<Link
+							href="/login"
+							className="rounded-full border border-white/20 bg-white px-3.5 py-1.5 text-sm font-medium text-black transition-colors hover:border-white/30 hover:bg-white/95"
+						>
+							Sign in
+						</Link>
+					)}
 				</div>
-			</div>
-		</header>
+			</motion.header>
+		</div>
 	);
 }
