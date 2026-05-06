@@ -15,12 +15,14 @@
 		"@orpc/openapi": "catalog:",
 		"@orpc/server": "catalog:",
 		"@orpc/zod": "catalog:",
+		"@types/pg": "^8.16.0",
 		"@url-shortener/auth": "workspace:*",
 		"@url-shortener/db": "workspace:*",
 		"@url-shortener/env": "workspace:*",
 		"dotenv": "catalog:",
 		"drizzle-orm": "^0.45.1",
 		"ioredis": "^5.9.2",
+		"pg": "^8.18.0",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
