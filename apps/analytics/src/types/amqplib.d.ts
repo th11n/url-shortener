@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import events = require("events");
+import events = require("node:events");
 import {
 	ConsumeMessage,
 	GetMessage,
@@ -11,6 +11,44 @@ import {
 } from "./properties";
 export * from "./properties";
 
+/**
+ * AMQP "arguments" / "headers" type.
+ * Values are typically field-table values (string/number/boolean/Buffer/null/arrays/objects).
+ * We keep it reasonably permissive but not `any`.
+ */
+export type FieldTable = Record<
+	string,
+	| string
+	| number
+	| boolean
+	| null
+	| Buffer
+	| Date
+	| FieldTable
+	| FieldValue[]
+	| FieldValue
+>;
+
+/**
+ * A field-table value in AMQP.
+ * (Kept permissive but not `any`.)
+ */
+export type FieldValue =
+	| string
+	| number
+	| boolean
+	| null
+	| Buffer
+	| Date
+	| FieldTable
+	| FieldValue[];
+
+/**
+ * A callback signature used by confirm channels.
+ * `err` is unknown because libraries may pass Error or other shapes.
+ */
+export type ConfirmCallback = (err: unknown, ok: Replies.Empty) => void;
+
 export interface Connection extends events.EventEmitter {
 	serverProperties: ServerProperties;
 	/**
@@ -19,6 +57,11 @@ export interface Connection extends events.EventEmitter {
 	expectSocketClose: boolean;
 	sentSinceLastCheck: boolean;
 	recvSinceLastCheck: boolean;
+
+	/**
+	 * Internal library method.
+	 * No stable public typing; keep args/result unknown rather than any.
+	 */
 	sendMessage(...args: unknown[]): unknown;
 }
 
@@ -51,13 +94,13 @@ export interface Channel extends events.EventEmitter {
 		queue: string,
 		source: string,
 		pattern: string,
-		args?: any,
+		args?: FieldTable,
 	): Promise<Replies.Empty>;
 	unbindQueue(
 		queue: string,
 		source: string,
 		pattern: string,
-		args?: any,
+		args?: FieldTable,
 	): Promise<Replies.Empty>;
 
 	assertExchange(
@@ -76,13 +119,13 @@ export interface Channel extends events.EventEmitter {
 		destination: string,
 		source: string,
 		pattern: string,
-		args?: any,
+		args?: FieldTable,
 	): Promise<Replies.Empty>;
 	unbindExchange(
 		destination: string,
 		source: string,
 		pattern: string,
-		args?: any,
+		args?: FieldTable,
 	): Promise<Replies.Empty>;
 
 	publish(
@@ -123,13 +166,13 @@ export interface ConfirmChannel extends Channel {
 		routingKey: string,
 		content: Buffer,
 		options?: Options.Publish,
-		callback?: (err: any, ok: Replies.Empty) => void,
+		callback?: ConfirmCallback,
 	): boolean;
 	sendToQueue(
 		queue: string,
 		content: Buffer,
 		options?: Options.Publish,
-		callback?: (err: any, ok: Replies.Empty) => void,
+		callback?: ConfirmCallback,
 	): boolean;
 
 	waitForConfirms(): Promise<void>;
@@ -162,5 +205,5 @@ export const credentials: {
 
 export function connect(
 	url: string | Options.Connect,
-	socketOptions?: any,
+	socketOptions?: unknown,
 ): Promise<ChannelModel>;
