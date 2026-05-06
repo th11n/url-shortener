@@ -1,0 +1,143 @@
+name: url-shortener
+
+services:
+  web:
+    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SERVER_URL: http://localhost:3000/rpc/v1
+        NEXT_PUBLIC_BASE_URL: http://localhost:3001
+        NEXT_PUBLIC_ANALYTICS_URL: http://localhost:3002
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000/rpc/v1
+      NEXT_PUBLIC_BASE_URL: http://localhost:3001
+      NEXT_PUBLIC_ANALYTICS_URL: http://localhost:3002
+    ports:
+      - "3001:3001"
+    depends_on:
+      - server
+      - analytics
+    restart: unless-stopped
+
+  server:
+    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/url-shortener
+      CORS_ORIGIN: http://localhost:3001
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: change_me_to_a_long_random_secret_min_32_chars
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  analytics:
+    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: apps/analytics/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/url-shortener
+      CORS_ORIGIN: http://localhost:3001
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: change_me_to_a_long_random_secret_min_32_chars
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      RABBITMQ_CLICK_EXCHANGE: clicks
+      RABBITMQ_CLICK_QUEUE: clicks.insert.v1
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/url-shortener
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+      RABBITMQ_CLICK_EXCHANGE: clicks
+      RABBITMQ_CLICK_QUEUE: clicks.insert.v1
+      RABBITMQ_PREFETCH: "50"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    platform: linux/arm64
+    environment:
+      POSTGRES_DB: url-shortener
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    platform: linux/arm64
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    platform: linux/arm64
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
