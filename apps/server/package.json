@@ -20,10 +20,12 @@
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",
 		"hono": "catalog:",
+		"pg": "^8.18.0",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@types/bun": "catalog:",
+		"@types/pg": "^8.16.0",
 		"@url-shortener/config": "workspace:*",
 		"tsdown": "^0.16.5",
 		"typescript": "catalog:"
