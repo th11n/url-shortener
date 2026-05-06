@@ -12,65 +12,72 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
 const app = new Hono();
-const rpcV1 = new RPCHandler(appRouterV1, {
-	interceptors: [onError(console.error)],
-});
+
+// 1. CORS - Musi być absolutnie pierwszy
+app.use(
+	"*",
+	cors({
+		origin: env.CORS_ORIGIN,
+		allowMethods: ["GET", "POST", "OPTIONS"],
+		allowHeaders: ["Content-Type", "Authorization", "Cookie"],
+		credentials: true,
+	}),
+);
+
+// 2. Auth handler
+app.on(["POST", "GET"], "/rpc/v1/auth/*", (c) => auth.handler(c.req.raw));
+
+// 3. Logger (poza trasami streamowanymi najlepiej)
+app.use(logger());
+
+// 4. OpenAPI & RPC Handlers
 export const apiV1Handler = new OpenAPIHandler(appRouterV1, {
 	plugins: [
 		new OpenAPIReferencePlugin({
 			schemaConverters: [new ZodToJsonSchemaConverter()],
 		}),
 	],
-	interceptors: [
-		onError((error) => {
-			console.error(error);
-		}),
-	],
+	interceptors: [onError(console.error)],
 });
 
-app.use(logger());
-app.use(
-	"/*",
-	cors({
-		origin: env.CORS_ORIGIN,
-		allowMethods: ["GET", "POST", "OPTIONS"],
-		allowHeaders: ["Content-Type", "Authorization"],
-		credentials: true,
-	}),
-);
-
-app.on(["POST", "GET"], "/rpc/v1/auth/*", (c) => auth.handler(c.req.raw));
-
-app.use("/*", async (c, next) => {
-	const context = await createContext({ context: c });
-
-	const apiV1Result = await apiV1Handler.handle(c.req.raw, {
-		prefix: "/api-reference/v1",
-		context,
-	});
-
-	if (apiV1Result.matched) {
-		return c.newResponse(apiV1Result.response.body, apiV1Result.response);
-	}
-
-	await next();
+const rpcV1 = new RPCHandler(appRouterV1, {
+	interceptors: [onError(console.error)],
 });
 
-app.use("/rpc/v1/*", async (c, next) => {
+// Główny handler dla wszystkiego pod /rpc/v1/
+app.all("/rpc/v1/*", async (c) => {
 	const context = await createContext({ context: c });
+
+	console.log(`[server] RPC request: ${c.req.method} ${c.req.url}`);
 
 	const { matched, response } = await rpcV1.handle(c.req.raw, {
 		prefix: "/rpc/v1",
 		context,
 	});
 
-	if (matched) return c.newResponse(response.body, response);
+	if (matched) {
+		console.log(`[server] RPC matched: ${c.req.url}`);
+		return c.newResponse(response.body, response);
+	}
 
-	await next();
+	console.log(
+		`[server] RPC NOT MATCHED: ${c.req.url}. Keys in router: ${Object.keys(appRouterV1).join(", ")}`,
+	);
+	return c.text("Not Found", 404);
 });
 
-app.get("/", (c) => {
-	return c.text("OK");
+// Handler dla API Reference
+app.all("/api-reference/v1/*", async (c) => {
+	const context = await createContext({ context: c });
+	const result = await apiV1Handler.handle(c.req.raw, {
+		prefix: "/api-reference/v1",
+		context,
+	});
+	if (result.matched)
+		return c.newResponse(result.response.body, result.response);
+	return c.text("Not Found", 404);
 });
+
+app.get("/", (c) => c.text("OK"));
 
 export default app;
