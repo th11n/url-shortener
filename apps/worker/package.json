@@ -19,6 +19,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
+		"@types/amqplib": "^0.10.7",
 		"@types/bun": "catalog:",
 		"@url-shortener/config": "workspace:*",
 		"tsdown": "^0.16.5",
