@@ -1,93 +1,109 @@
-# ⚡ TrimLink - Modern URL Shortener
+# URL Shortener
 
-A powerful, scalable, and ultra-fast URL shortener built with a monorepo architecture. This project focuses on high performance, security, and real-time analytics.
+Monorepo with 4 services:
 
-## 🚀 Key Features
+- `web` (Next.js, port `3001`)
+- `server` (API, port `3000`)
+- `analytics` (tracking API, port `3002`)
+- `worker` (RabbitMQ consumer)
 
-- **URL Shortening**: Create short, shareable links in an instant.
-- **Custom Slugs**: Support for user-defined link identifiers.
-- **Real-time Analytics**: Track clicks with detailed info on devices, browsers, and geographic location.
-- **Queue System (RabbitMQ)**: Background processing of analytics ensures lightning-fast redirects.
-- **Caching (Redis)**: Redirect lookups are cached to reduce database load to near zero.
-- **Full Auth**: Secure sign-in and registration powered by `better-auth`.
-- **End-to-End Type Safety**: Shared TypeScript types across the entire stack (from DB to Frontend) via `oRPC`.
+Shared code is in `packages/*`.
 
-## 🏗️ System Architecture
+## Stack
 
-The system is split into micro-services and shared packages using a Monorepo structure:
+Bun, Turborepo, Next.js, Hono, Drizzle + Postgres, Redis, RabbitMQ, Better Auth.
 
-- **`apps/web`**: Next.js 16 frontend with a modern UI (Shadcn/UI, GSAP Animations, Confetti).
-- **`apps/server`**: Main API Gateway built with Hono, handling business logic and oRPC endpoints.
-- **`apps/analytics`**: Isolated analytics service (Hono) that collects data and dispatches events to RabbitMQ.
-- **`packages/db`**: Database layer using Drizzle ORM and PostgreSQL.
-- **`packages/api`**: Shared oRPC router definitions and business logic.
-- **`packages/auth`**: Shared Better-Auth configuration used across all services.
+## Local run
 
-## 🛠️ Tech Stack
+1. Install deps
 
-- **Runtime**: Bun
-- **Frontend**: Next.js 16, TailwindCSS, Framer Motion, TanStack Query/Form
-- **Backend**: Hono, oRPC
-- **Database**: PostgreSQL, Drizzle ORM
-- **Infrastructure**: Docker, RabbitMQ, Redis
-- **Tooling**: Turborepo, Biome, Husky
-
-## 🏁 Quick Start
-
-### 1. Clone and Install
 ```bash
-git clone <repository-url>
-cd url-shortener
 bun install
 ```
 
-### 2. Infrastructure (Docker)
-Spin up the required services (Postgres, Redis, RabbitMQ):
+2. Start infra
+
 ```bash
-cd packages/db
-docker-compose up -d
+bun db:start
 ```
 
-### 3. Environment Variables
-Copy `.env.example` (if available) or create `.env` files in the respective `apps/*` directories with your database, Redis, and RabbitMQ credentials.
+3. Create env files from:
 
-### 4. Database Migrations
+- `apps/web/.env.example`
+- `apps/server/.env.example`
+- `apps/analytics/.env.example`
+
+4. Push schema
+
 ```bash
 bun db:push
 ```
 
-### 5. Run the Project
+5. Start all apps
+
 ```bash
 bun dev
 ```
 
-## 📈 Monitoring & Tools
-- **Drizzle Studio**: `bun db:studio` (database browser)
-- **RabbitMQ Management**: `http://localhost:15672` (User: `admin`, Pass: `admin`)
-- **API Docs**: `http://localhost:3000/api-reference/v1` (OpenAPI/Swagger)
+## Useful commands
 
----
+```bash
+bun build
+bun check-types
+bun check
 
-Built with a passion for high-performance code. ✨
+bun db:generate
+bun db:migrate
+bun db:studio
+bun db:stop
+bun db:down
+```
 
-## CI/CD Docker for Coolify
+## Docker / CI
 
-GitHub Actions workflow: `.github/workflows/docker-image.yml`
+GitHub Actions builds 4 images (web/server/analytics/worker) and pushes them to GHCR on push to `master`.
 
-What it does:
-- On Pull Request to `main`: builds Docker image (no push).
-- On push/merge to `main` and on `v*` tags: builds and pushes image to `ghcr.io/<owner>/<repo>`.
-- Builds multi-arch image: `linux/amd64` and `linux/arm64`.
+Image names:
 
-Image tags created automatically:
-- `latest` (default branch)
-- branch/tag name
-- commit SHA
+- `ghcr.io/<owner>/<repo>-web`
+- `ghcr.io/<owner>/<repo>-server`
+- `ghcr.io/<owner>/<repo>-analytics`
+- `ghcr.io/<owner>/<repo>-worker`
 
-### Coolify setup
-1. In Coolify, create a new application from Docker image.
-2. Image name: `ghcr.io/<owner>/<repo>:latest` (or specific tag/SHA).
-3. Add a GHCR access token in Coolify registry credentials:
-   - Username: your GitHub username
-   - Password: GitHub PAT with `read:packages`
-4. Configure app environment variables and ports (container exposes `3001`).
+Tags: `latest`, branch/tag, sha.
+
+Workflow file: `.github/workflows/docker-image.yml`
+
+## Deploy with docker-compose
+
+Root `docker-compose.yml` pulls images from GHCR (no local build).
+
+Defaults in compose:
+
+- `GHCR_OWNER=th11n`
+- `GHCR_REPO=url-shortener`
+- `IMAGE_TAG=latest`
+
+Run:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+## Repo layout
+
+```text
+apps/
+  web/
+  server/
+  analytics/
+  worker/
+packages/
+  api/
+  auth/
+  db/
+  env/
+  ui/
+  config/
+```
