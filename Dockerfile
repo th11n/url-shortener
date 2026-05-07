@@ -8,13 +8,11 @@ COPY packages ./packages
 RUN bun install --frozen-lockfile
 
 
-FROM node:22-bookworm-slim AS builder
+FROM oven/bun:1.3.3 AS builder
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_DISABLE_TURBOPACK=1
-
 ARG NEXT_PUBLIC_SERVER_URL=http://localhost:3000/rpc/v1
 ARG NEXT_PUBLIC_BASE_URL=http://localhost:3001
 ARG NEXT_PUBLIC_ANALYTICS_URL=http://localhost:3002
@@ -24,9 +22,7 @@ ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 ENV NEXT_PUBLIC_ANALYTICS_URL=${NEXT_PUBLIC_ANALYTICS_URL}
 
 COPY --from=deps /app ./
-
-WORKDIR /app/apps/web
-RUN node ../../node_modules/next/dist/bin/next build
+RUN bun run --cwd apps/web build
 
 
 FROM oven/bun:1.3.3 AS runner
