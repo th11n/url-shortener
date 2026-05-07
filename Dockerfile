@@ -36,6 +36,7 @@ COPY --from=deps /app/node_modules /app/node_modules
 COPY --from=deps /app/apps/web/node_modules ./node_modules
 COPY --from=deps /app/package.json /app/package.json
 COPY --from=deps /app/bun.lock /app/bun.lock
+COPY --from=deps /app/packages /app/packages
 COPY --from=deps /app/apps/web/package.json ./package.json
 
 COPY --from=builder /app/apps/web/.next ./.next
