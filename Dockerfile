@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 oven/bun:1.3.3 AS base
+FROM oven/bun:1.3.3 AS base
 WORKDIR /app
 
 FROM base AS deps
@@ -17,7 +17,7 @@ ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
 ENV NEXT_PUBLIC_ANALYTICS_URL=${NEXT_PUBLIC_ANALYTICS_URL}
 RUN bun run --cwd apps/web build
 
-FROM --platform=linux/arm64 oven/bun:1.3.3 AS runner
+FROM oven/bun:1.3.3 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

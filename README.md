@@ -69,3 +69,25 @@ bun dev
 ---
 
 Built with a passion for high-performance code. ✨
+
+## CI/CD Docker for Coolify
+
+GitHub Actions workflow: `.github/workflows/docker-image.yml`
+
+What it does:
+- On Pull Request to `main`: builds Docker image (no push).
+- On push/merge to `main` and on `v*` tags: builds and pushes image to `ghcr.io/<owner>/<repo>`.
+- Builds multi-arch image: `linux/amd64` and `linux/arm64`.
+
+Image tags created automatically:
+- `latest` (default branch)
+- branch/tag name
+- commit SHA
+
+### Coolify setup
+1. In Coolify, create a new application from Docker image.
+2. Image name: `ghcr.io/<owner>/<repo>:latest` (or specific tag/SHA).
+3. Add a GHCR access token in Coolify registry credentials:
+   - Username: your GitHub username
+   - Password: GitHub PAT with `read:packages`
+4. Configure app environment variables and ports (container exposes `3001`).
