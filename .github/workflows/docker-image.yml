@@ -2,9 +2,9 @@ name: Build and Publish Docker Image
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: ["master"]
   push:
-    branches: ["main"]
+    branches: ["master"]
     tags: ["v*"]
   workflow_dispatch:
 
