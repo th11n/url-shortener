@@ -12,12 +12,16 @@ ENV NODE_ENV=production
 RUN bun run --cwd apps/analytics build
 
 FROM oven/bun:1.3.3 AS runner
-WORKDIR /app
+WORKDIR /app/apps/analytics
 ENV NODE_ENV=production
 ENV PORT=3002
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=builder /app/apps/analytics/dist ./apps/analytics/dist
+COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/package.json /app/package.json
+COPY --from=deps /app/bun.lock /app/bun.lock
+COPY --from=deps /app/packages /app/packages
+COPY --from=deps /app/apps/analytics/package.json ./package.json
+COPY --from=builder /app/apps/analytics/dist ./dist
 
 EXPOSE 3002
-CMD ["bun", "--port", "3002", "run", "apps/analytics/dist/index.mjs"]
+CMD ["bun", "run", "start"]

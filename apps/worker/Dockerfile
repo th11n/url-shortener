@@ -12,10 +12,14 @@ ENV NODE_ENV=production
 RUN bun run --cwd apps/worker build
 
 FROM oven/bun:1.3.3 AS runner
-WORKDIR /app
+WORKDIR /app/apps/worker
 ENV NODE_ENV=production
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=builder /app/apps/worker/dist ./apps/worker/dist
+COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/package.json /app/package.json
+COPY --from=deps /app/bun.lock /app/bun.lock
+COPY --from=deps /app/packages /app/packages
+COPY --from=deps /app/apps/worker/package.json ./package.json
+COPY --from=builder /app/apps/worker/dist ./dist
 
-CMD ["bun", "run", "apps/worker/dist/index.mjs"]
+CMD ["bun", "run", "start"]
