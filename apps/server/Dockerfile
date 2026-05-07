@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 oven/bun:1.3.3 AS base
+FROM oven/bun:1.3.3 AS base
 WORKDIR /app
 
 FROM base AS deps
@@ -11,7 +11,7 @@ FROM deps AS builder
 ENV NODE_ENV=production
 RUN bun run --cwd apps/server build
 
-FROM --platform=linux/arm64 oven/bun:1.3.3 AS runner
+FROM oven/bun:1.3.3 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
