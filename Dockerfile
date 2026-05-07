@@ -44,4 +44,4 @@ COPY --from=deps /app/apps/web/postcss.config.mjs ./apps/web/postcss.config.mjs
 
 EXPOSE 3001
 
-CMD ["bun", "run", "--cwd", "apps/web", "start"]
+CMD ["bun", "apps/web/node_modules/next/dist/bin/next", "start", "--port", "3001"]

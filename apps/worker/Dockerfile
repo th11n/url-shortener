@@ -16,10 +16,11 @@ WORKDIR /app/apps/worker
 ENV NODE_ENV=production
 
 COPY --from=deps /app/node_modules /app/node_modules
+COPY --from=deps /app/apps/worker/node_modules ./node_modules
 COPY --from=deps /app/package.json /app/package.json
 COPY --from=deps /app/bun.lock /app/bun.lock
 COPY --from=deps /app/packages /app/packages
 COPY --from=deps /app/apps/worker/package.json ./package.json
 COPY --from=builder /app/apps/worker/dist ./dist
 
-CMD ["bun", "run", "start"]
+CMD ["bun", "dist/index.mjs"]
