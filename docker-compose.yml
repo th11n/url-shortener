@@ -2,7 +2,7 @@ name: url-shortener
 
 services:
   web:
-    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-web:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-th11n}/${GHCR_REPO:-url-shortener}-web:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   server:
-    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-server:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-th11n}/${GHCR_REPO:-url-shortener}-server:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -33,7 +33,7 @@ services:
     restart: unless-stopped
 
   analytics:
-    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-analytics:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-th11n}/${GHCR_REPO:-url-shortener}-analytics:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       PORT: 3002
@@ -54,7 +54,7 @@ services:
     restart: unless-stopped
 
   worker:
-    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-worker:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-th11n}/${GHCR_REPO:-url-shortener}-worker:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:password@postgres:5432/url-shortener
