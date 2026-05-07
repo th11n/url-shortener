@@ -44,7 +44,6 @@ COPY --from=deps /app/apps/web/package.json ./apps/web/package.json
 COPY --from=builder /app/apps/web/.next ./apps/web/.next
 COPY --from=deps /app/apps/web/next.config.ts ./apps/web/next.config.ts
 COPY --from=deps /app/apps/web/postcss.config.mjs ./apps/web/postcss.config.mjs
-COPY --from=deps /app/apps/web/public ./apps/web/public
 
 EXPOSE 3001
 
