@@ -2,14 +2,7 @@ name: url-shortener
 
 services:
   web:
-    platform: linux/arm64
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_SERVER_URL: http://localhost:3000/rpc/v1
-        NEXT_PUBLIC_BASE_URL: http://localhost:3001
-        NEXT_PUBLIC_ANALYTICS_URL: http://localhost:3002
+    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-web:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       PORT: 3001
@@ -24,10 +17,7 @@ services:
     restart: unless-stopped
 
   server:
-    platform: linux/arm64
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
+    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-server:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -43,10 +33,7 @@ services:
     restart: unless-stopped
 
   analytics:
-    platform: linux/arm64
-    build:
-      context: .
-      dockerfile: apps/analytics/Dockerfile
+    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-analytics:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       PORT: 3002
@@ -67,10 +54,7 @@ services:
     restart: unless-stopped
 
   worker:
-    platform: linux/arm64
-    build:
-      context: .
-      dockerfile: apps/worker/Dockerfile
+    image: ghcr.io/${GHCR_OWNER}/${GHCR_REPO}-worker:${IMAGE_TAG:-latest}
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:password@postgres:5432/url-shortener
@@ -87,7 +71,6 @@ services:
 
   postgres:
     image: postgres:16
-    platform: linux/arm64
     environment:
       POSTGRES_DB: url-shortener
       POSTGRES_USER: postgres
@@ -105,7 +88,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    platform: linux/arm64
     ports:
       - "6379:6379"
     command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
@@ -120,7 +102,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management
-    platform: linux/arm64
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
