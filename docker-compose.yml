@@ -9,8 +9,6 @@ services:
       NEXT_PUBLIC_SERVER_URL: http://localhost:3000/rpc/v1
       NEXT_PUBLIC_BASE_URL: http://localhost:3001
       NEXT_PUBLIC_ANALYTICS_URL: http://localhost:3002
-    ports:
-      - "3001:3001"
     depends_on:
       - server
       - analytics
@@ -25,8 +23,6 @@ services:
       CORS_ORIGIN: http://localhost:3001
       BETTER_AUTH_URL: http://localhost:3000
       BETTER_AUTH_SECRET: change_me_to_a_long_random_secret_min_32_chars
-    ports:
-      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,8 +40,6 @@ services:
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
       RABBITMQ_CLICK_EXCHANGE: clicks
       RABBITMQ_CLICK_QUEUE: clicks.insert.v1
-    ports:
-      - "3002:3002"
     depends_on:
       postgres:
         condition: service_healthy
