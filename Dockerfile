@@ -13,9 +13,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG NEXT_PUBLIC_SERVER_URL=http://localhost:3000/rpc/v1
-ARG NEXT_PUBLIC_BASE_URL=http://localhost:3001
-ARG NEXT_PUBLIC_ANALYTICS_URL=http://localhost:3002
+ARG NEXT_PUBLIC_SERVER_URL=https://api.shortener.dominikkrakowiak.com/rpc/v1
+ARG NEXT_PUBLIC_BASE_URL=https://shortener.dominikkrakowiak.com/
+ARG NEXT_PUBLIC_ANALYTICS_URL=https://analytics.shortener.dominikkrakowiak.com/
 
 ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
 ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
