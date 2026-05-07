@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: postgres:16
+    image: docker.io/library/postgres:16-alpine
     environment:
       POSTGRES_DB: url-shortener
       POSTGRES_USER: postgres
@@ -79,7 +79,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:7-alpine
+    image: docker.io/library/redis:7-alpine
     command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
     volumes:
       - redis_data:/data
@@ -91,7 +91,7 @@ services:
     restart: unless-stopped
 
   rabbitmq:
-    image: rabbitmq:3.13-management
+    image: docker.io/library/rabbitmq:3.13-management-alpine
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
