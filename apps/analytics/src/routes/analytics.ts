@@ -2,7 +2,7 @@ import { db } from "@url-shortener/db";
 import { linkClicks, linkDailyStats } from "@url-shortener/db/schema/analytics";
 import { urls } from "@url-shortener/db/schema/urls";
 import { and, desc, eq, gte, sql } from "drizzle-orm";
-import type { Hono } from "hono";
+import type { Context, Hono } from "hono";
 import { isbot } from "isbot";
 import { UAParser } from "ua-parser-js";
 import { publishJson } from "../rabbit";
@@ -59,7 +59,7 @@ type ClickEvent = {
 	utmCampaign: string | null;
 };
 
-function getClientIp(c: any) {
+function getClientIp(c: Context) {
 	const cf = c.req.header("cf-connecting-ip");
 	if (cf) return cf.trim();
 

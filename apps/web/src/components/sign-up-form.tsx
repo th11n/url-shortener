@@ -70,7 +70,7 @@ export default function SignUpForm({
 				</div>
 
 				<form
-					onSubmit={(e) => {
+					onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
 						e.preventDefault();
 						e.stopPropagation();
 						form.handleSubmit();

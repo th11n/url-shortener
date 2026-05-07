@@ -208,7 +208,7 @@ export default function LinksTable({ baseUrl }: { baseUrl?: string }) {
 															/{l.shortUrl}
 														</span>
 														<button
-															onClick={(e) => {
+															onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 																e.stopPropagation();
 																onCopy(shortFull);
 															}}
@@ -257,7 +257,9 @@ export default function LinksTable({ baseUrl }: { baseUrl?: string }) {
 														<Button
 															variant="ghost"
 															size="icon"
-															onClick={(e) => e.stopPropagation()}
+															onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+																e.stopPropagation()
+															}
 															className="h-10 w-10 rounded-xl text-white/70 transition-all hover:bg-white/[0.04] hover:text-white group-hover:bg-white/[0.04]"
 														>
 															<MoreHorizontal className="h-5 w-5" />
