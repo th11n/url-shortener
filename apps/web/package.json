@@ -46,6 +46,7 @@
 		"@tanstack/react-query-devtools": "^5.91.1",
 		"@types/amqplib": "^0.10.8",
 		"@types/node": "^20",
+		"@types/three": "^0.184.0",
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
 		"@url-shortener/config": "workspace:*",
