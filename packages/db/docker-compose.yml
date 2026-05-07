@@ -8,8 +8,6 @@ services:
       POSTGRES_DB: url-shortener
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
     volumes:
       - url-shortener_postgres_data:/var/lib/postgresql
     healthcheck:
