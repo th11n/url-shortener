@@ -1,6 +1,6 @@
 import { db } from "@url-shortener/db";
 import * as schema from "@url-shortener/db/schema/auth";
-import { env } from "@url-shortener/env/server";
+import { corsOrigins } from "@url-shortener/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
@@ -10,7 +10,7 @@ export const auth = betterAuth({
 		schema: schema,
 	}),
 	basePath: "/rpc/v1/auth",
-	trustedOrigins: [env.CORS_ORIGIN],
+	trustedOrigins: corsOrigins,
 	emailAndPassword: {
 		enabled: true,
 	},

@@ -6,7 +6,7 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { createContext } from "@url-shortener/api/context";
 import { appRouter as appRouterV1 } from "@url-shortener/api/routers/v1/index";
 import { auth } from "@url-shortener/auth";
-import { env } from "@url-shortener/env/server";
+import { corsOrigins } from "@url-shortener/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -17,7 +17,7 @@ const app = new Hono();
 app.use(
 	"*",
 	cors({
-		origin: env.CORS_ORIGIN,
+		origin: corsOrigins,
 		allowMethods: ["GET", "POST", "OPTIONS"],
 		allowHeaders: ["Content-Type", "Authorization", "Cookie"],
 		credentials: true,
@@ -25,7 +25,18 @@ app.use(
 );
 
 // 2. Auth handler
-app.on(["POST", "GET"], "/rpc/v1/auth/*", (c) => auth.handler(c.req.raw));
+app.on(["POST", "GET"], "/rpc/v1/auth/*", async (c) => {
+	const response = await auth.handler(c.req.raw);
+	const origin = c.req.header("origin");
+
+	if (origin && corsOrigins.includes(origin)) {
+		response.headers.set("Access-Control-Allow-Origin", origin);
+		response.headers.set("Access-Control-Allow-Credentials", "true");
+		response.headers.set("Vary", "Origin");
+	}
+
+	return response;
+});
 
 // 3. Logger (poza trasami streamowanymi najlepiej)
 app.use(logger());

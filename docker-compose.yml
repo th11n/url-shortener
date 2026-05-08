@@ -6,9 +6,9 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      NEXT_PUBLIC_SERVER_URL: http://localhost:3000/rpc/v1
-      NEXT_PUBLIC_BASE_URL: http://localhost:3001
-      NEXT_PUBLIC_ANALYTICS_URL: http://localhost:3002
+      NEXT_PUBLIC_SERVER_URL: https://api.shortener.dominikkrakowiak.com/rpc/v1
+      NEXT_PUBLIC_BASE_URL: https://shortener.dominikkrakowiak.com
+      NEXT_PUBLIC_ANALYTICS_URL: https://api.shortener.dominikkrakowiak.com
     depends_on:
       - server
       - analytics
@@ -20,8 +20,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://postgres:password@postgres:5432/url-shortener
-      CORS_ORIGIN: http://localhost:3001
-      BETTER_AUTH_URL: http://localhost:3000
+      CORS_ORIGIN: https://shortener.dominikkrakowiak.com
+      BETTER_AUTH_URL: https://api.shortener.dominikkrakowiak.com
       BETTER_AUTH_SECRET: change_me_to_a_long_random_secret_min_32_chars
     depends_on:
       postgres:
@@ -34,8 +34,8 @@ services:
       NODE_ENV: production
       PORT: 3002
       DATABASE_URL: postgresql://postgres:password@postgres:5432/url-shortener
-      CORS_ORIGIN: http://localhost:3001
-      BETTER_AUTH_URL: http://localhost:3000
+      CORS_ORIGIN: https://shortener.dominikkrakowiak.com
+      BETTER_AUTH_URL: https://api.shortener.dominikkrakowiak.com
       BETTER_AUTH_SECRET: change_me_to_a_long_random_secret_min_32_chars
       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
       RABBITMQ_CLICK_EXCHANGE: clicks
