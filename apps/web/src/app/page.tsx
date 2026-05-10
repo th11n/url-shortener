@@ -124,6 +124,8 @@ export default function Home() {
 		setTimeout(() => setCopied(false), 2000);
 	};
 
+	const fullShortUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${result?.shortUrl ?? ""}`;
+
 	return (
 		<div className="relative min-h-screen bg-background selection:bg-primary/20 selection:text-primary before:absolute before:top-0 before:left-0 before:w-full
      before:h-full before:content-[''] before:opacity-[0.02] before:z-10 before:pointer-events-none
@@ -287,8 +289,8 @@ export default function Home() {
 								<div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-r from-white/[0.05] via-transparent to-white/[0.03]" />
 								<div className="flex flex-col gap-4">
 									<div className="flex items-center gap-3">
-										<div className="min-w-0 flex-1 truncate text-lg font-light tracking-tight text-white font-mono">
-											{process.env.NEXT_PUBLIC_BASE_URL}/{result?.shortUrl}
+										<div className="min-w-0 flex-1 break-all text-sm font-light tracking-tight text-white font-mono sm:text-base">
+											{fullShortUrl}
 										</div>
 										<Button
 											onClick={onCopy}
